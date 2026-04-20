@@ -1,0 +1,25 @@
+{
+  "n_exemples": 86,
+  "distribution_categories": {
+    "Support technique": 20,
+    "Information générale": 20,
+    "Demande commerciale": 16,
+    "Demande de transformation": 15,
+    "Réclamation": 15
+  },
+  "distribution_priorites": {
+    "normale": 62,
+    "haute": 24
+  },
+  "doublons_exacts": 0,
+  "doublons_normalises": 0,
+  "len_input_moy": 96.3,
+  "len_input_med": 94.0,
+  "lignes_avec_pii": 0,
+  "risques_prioritaires": [
+    "Faible volume de données (86 exemples) : nécessite une approche par prompt engineering ou fine-tuning léger.",
+    "Biais de longueur marqué : les 'Informations générales' sont significativement plus courtes (moy. 77) que les 'Réclamations' (moy. 107).",
+    "Déséquilibre des priorités : la catégorie 'Information générale' ne contient aucun exemple en priorité 'haute' (risque de spécialisation excessive).",
+    "Risque de 'Faux Positifs' NER : le modèle de détection de noms confond les verbes de début de phrase ('Pouvez') avec des PII."
+  ]
+}
