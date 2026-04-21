@@ -17,7 +17,7 @@ pd.set_option("display.max_colwidth", 120)
 print("Imports OK")
 
 
-DATASET_PATH = Path("data/raw/dataset_fastia_module1.jsonl")
+DATASET_PATH = Path("data/raw/dataset_fastia_module1v2.jsonl")
 
 CATEGORIES_ATTENDUES = [
     "Support technique",
@@ -290,7 +290,8 @@ print(pii_counts)
 
 # Chargement du modèle français (nécessite : python -m spacy download fr_core_news_sm)
 try:
-    nlp = spacy.load("fr_core_news_sm")
+    #nlp = spacy.load("fr_core_news_sm")
+    nlp = spacy.load("fr_core_news_lg")     # Ce dictionnaire est plus précis que le "sm"
     print("Modèle spaCy chargé avec succès.")
 
     def detect_names(text):

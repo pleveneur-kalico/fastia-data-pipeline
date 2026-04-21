@@ -1,0 +1,9 @@
+{
+    "timestamp": "2026-04-21T09:47:00.541780",
+    "input_file": "data/raw/dataset_fastia_module1.jsonl",
+    "output_file": "data/processed/dataset_fastia_clean_v1.jsonl",
+    "total_rows": 86,
+    "valid_rows": 86,
+    "outliers_detected": 0,
+    "duration_seconds": 0.535593
+}

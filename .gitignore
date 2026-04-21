@@ -1,3 +1,7 @@
 venv/
 notebook_brief1_module2.ipynb
 installation.bat
+venv.cmd
+.pytest_cache
+tests/__pycache__
+src/pipeline/__pycache__

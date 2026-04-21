@@ -19,7 +19,7 @@ ipykernel>=6.29
 spacy>=3.7
 # Modèle français à installer en plus :
 #   python -m spacy download fr_core_news_sm
-
+# python -m spacy download fr_core_news_lg => Pour une détection plus précise des noms propres
 # Augmentation de données
 nltk>=3.8
 

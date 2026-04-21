@@ -1,20 +1,20 @@
 ﻿idx;categorie_actuelle;priorite_actuelle;categorie_ok;priorite_ok;reponse_ok;contient_pii;commentaire
 0;Demande commerciale;haute;True;True;True;False;
 1;Demande commerciale;haute;True;True;True;False;
-2;Demande commerciale;haute;True;True;True;False;
-3;Demande commerciale;normale;True;True;True;False;
-4;Demande de transformation;normale;True;True;True;False;
-5;Demande de transformation;normale;True;True;True;False;
+2;Demande commerciale;normale;True;True;True;False;
+3;Demande commerciale;haute;True;True;True;False;
+4;Demande de transformation;haute;True;True;True;False;
+5;Demande de transformation;haute;True;True;True;False;
 6;Demande de transformation;haute;True;True;True;False;
 7;Demande de transformation;normale;True;True;True;False;
 8;Information générale;normale;True;True;True;False;
 9;Information générale;normale;True;True;True;False;
 10;Information générale;normale;True;True;True;False;
 11;Information générale;normale;True;True;True;False;
-12;Réclamation;normale;True;True;True;False;
-13;Réclamation;normale;True;True;True;False;
+12;Réclamation;haute;True;True;True;False;
+13;Réclamation;haute;True;True;True;False;
 14;Réclamation;haute;True;True;True;False;
-15;Réclamation;normale;True;True;True;False;
+15;Réclamation;haute;True;True;True;False;
 16;Support technique;haute;True;True;True;False;
 17;Support technique;normale;True;True;True;False;
 18;Support technique;normale;True;True;True;False;
