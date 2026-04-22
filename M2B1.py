@@ -279,38 +279,66 @@ PII_PATTERNS = {
     "ip":        re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}\b"),
 }
 
-pii_counts = {k: df["input"].str.contains(p, regex=True).sum() for k, p in PII_PATTERNS.items()}
-pii_counts["total_lignes"] = len(df)
-print(pii_counts)
+def extract_pii(text):
+    if not isinstance(text, str): return {}
+    found = {k: p.findall(text) for k, p in PII_PATTERNS.items()}
+    return {k: v for k, v in found.items() if v}
 
-# Objectif : la regex ne détecte pas les noms propres. Noter dans la revue qualitative
-# les exemples où des prénoms ou noms apparaissent dans input ou reponse_suggeree.
-#
-# Optionnel : tester spaCy (fr_core_news_sm) pour une détection NER plus fine.
+# Extraction sur input et reponse_suggeree
+df["pii_input"] = df["input"].apply(extract_pii)
+df["pii_reponse"] = df["reponse_suggeree"].apply(extract_pii)
 
-# Chargement du modèle français (nécessite : python -m spacy download fr_core_news_sm)
+# Fusion des PII
+def merge_pii(row):
+    combined = {}
+    for k in PII_PATTERNS.keys():
+        matches = row["pii_input"].get(k, []) + row["pii_reponse"].get(k, [])
+        if matches: combined[k] = list(set(matches))
+    return combined
+
+df["all_pii"] = df.apply(merge_pii, axis=1)
+
+# Chargement du modèle français
 try:
-    #nlp = spacy.load("fr_core_news_sm")
-    nlp = spacy.load("fr_core_news_lg")     # Ce dictionnaire est plus précis que le "sm"
+    nlp = spacy.load("fr_core_news_lg")
     print("Modèle spaCy chargé avec succès.")
 
     def detect_names(text):
+        if not isinstance(text, str) or not text.strip(): return []
         doc = nlp(text)
-        # On cherche les entités de type 'PER' (Personnes)
-        names = [ent.text for ent in doc.ents if ent.label_ == "PER"]
-        return names
+        return [ent.text for ent in doc.ents if ent.label_ == "PER"]
 
-    # Test sur un petit échantillon
-    df["noms_detectes"] = df["input"].apply(detect_names)
-    count_with_names = df["noms_detectes"].map(len).gt(0).sum()
+    # Détection sur input ET reponse_suggeree
+    df["noms_detectes"] = df.apply(
+        lambda r: list(set(detect_names(str(r["input"])) + detect_names(str(r["reponse_suggeree"])))), 
+        axis=1
+    )
     
-    print(f"Lignes avec noms propres potentiels (via NER) : {count_with_names}")
-    if count_with_names > 0:
-        print("Exemples de noms trouvés :", df[df["noms_detectes"].map(len) > 0]["noms_detectes"].iloc[0:5].tolist())
+    # Filtrage des lignes avec n'importe quelle donnée sensible
+    df_sensible = df[(df["all_pii"].map(len) > 0) | (df["noms_detectes"].map(len) > 0)]
+    
+    print(f"Total de lignes avec données sensibles : {len(df_sensible)} / {len(df)}")
+    
+    if not df_sensible.empty:
+        print("\n========== LISTE DE TOUTES LES DONNÉES SENSIBLES DÉTECTÉES ==========")
+        for idx, row in df_sensible.iterrows():
+            infos = []
+            if row["all_pii"]: infos.append(f"PII: {row['all_pii']}")
+            if row["noms_detectes"]: infos.append(f"Noms: {row['noms_detectes']}")
+            
+            print(f"Ligne {idx} [{row['categorie']}]:")
+            print(f"  > Trouvé : {', '.join(infos)}")
+            print(f"  > Input  : {row['input'][:100]}...")
+            print("-" * 40)
 
 except Exception as e:
-    print(f"spaCy non configuré ou erreur : {e}")
-    print("Poursuivez avec la détection manuelle dans la revue qualitative.")
+    print(f"Erreur spaCy : {e}")
+    # Fallback si spaCy échoue : on montre au moins les PII regex
+    df_sensible_pii = df[df["all_pii"].map(len) > 0]
+    print(f"Lignes avec PII (Regex uniquement) : {len(df_sensible_pii)}")
+    for idx, row in df_sensible_pii.iterrows():
+        print(f"Ligne {idx} : PII {row['all_pii']}")
+
     
  
  
@@ -327,28 +355,29 @@ print("=============== 5 - SYNTHESE ================")
 # Remplissage avec les chiffres obtenus lors de l'exécution :
 
 audit_synthese = {
-    "n_exemples": 86,
+    "n_exemples": 96,
     "distribution_categories": {
-        "Support technique": 20,
-        "Information générale": 20,
-        "Demande commerciale": 16,
-        "Demande de transformation": 15,
-        "Réclamation": 15
+        "Support technique": 22,
+        "Information générale": 22,
+        "Demande commerciale": 18,
+        "Demande de transformation": 17,
+        "Réclamation": 17
     },
     "distribution_priorites": {
-        "normale": 62,
-        "haute": 24
+        "normale": 68,
+        "haute": 28
     },
     "doublons_exacts": 0,
     "doublons_normalises": 0,
-    "len_input_moy": 96.3,
-    "len_input_med": 94.0,
-    "lignes_avec_pii": 0,  # Confirmé manuellement après analyse des faux positifs de spaCy
+    "len_input_moy": 100.7,
+    "len_input_med": 99.0,
+    "lignes_avec_pii": 11,
     "risques_prioritaires": [
-        "Faible volume de données (86 exemples) : nécessite une approche par prompt engineering ou fine-tuning léger.",
-        "Biais de longueur marqué : les 'Informations générales' sont significativement plus courtes (moy. 77) que les 'Réclamations' (moy. 107).",
+        "Faible volume de données (96 exemples) : nécessite une approche par prompt engineering ou fine-tuning léger.",
+        "Biais de longueur marqué : les 'Informations générales' sont significativement plus courtes (moy. 81.1) que les 'Réclamations' (moy. 111.8).",
         "Déséquilibre des priorités : la catégorie 'Information générale' ne contient aucun exemple en priorité 'haute' (risque de spécialisation excessive).",
-        "Risque de 'Faux Positifs' NER : le modèle de détection de noms confond les verbes de début de phrase ('Pouvez') avec des PII."
+        "Risque de 'Faux Positifs' NER : le modèle peut confondre certains termes techniques (ex: 'MLOps') avec des noms de personnes.",
+        "Détection PII exhaustive : les IPs, téléphones, emails et URLs sont bien identifiés comme données sensibles, incluant les formats numériques imbriqués."
     ],
 }
 

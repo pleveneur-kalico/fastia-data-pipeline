@@ -1,25 +1,26 @@
 {
-  "n_exemples": 86,
+  "n_exemples": 96,
   "distribution_categories": {
-    "Support technique": 20,
-    "Information générale": 20,
-    "Demande commerciale": 16,
-    "Demande de transformation": 15,
-    "Réclamation": 15
+    "Support technique": 22,
+    "Information générale": 22,
+    "Demande commerciale": 18,
+    "Demande de transformation": 17,
+    "Réclamation": 17
   },
   "distribution_priorites": {
-    "normale": 62,
-    "haute": 24
+    "normale": 68,
+    "haute": 28
   },
   "doublons_exacts": 0,
   "doublons_normalises": 0,
-  "len_input_moy": 96.3,
-  "len_input_med": 94.0,
-  "lignes_avec_pii": 0,
+  "len_input_moy": 100.7,
+  "len_input_med": 99.0,
+  "lignes_avec_pii": 11,
   "risques_prioritaires": [
-    "Faible volume de données (86 exemples) : nécessite une approche par prompt engineering ou fine-tuning léger.",
-    "Biais de longueur marqué : les 'Informations générales' sont significativement plus courtes (moy. 77) que les 'Réclamations' (moy. 107).",
+    "Faible volume de données (96 exemples) : nécessite une approche par prompt engineering ou fine-tuning léger.",
+    "Biais de longueur marqué : les 'Informations générales' sont significativement plus courtes (moy. 81.1) que les 'Réclamations' (moy. 111.8).",
     "Déséquilibre des priorités : la catégorie 'Information générale' ne contient aucun exemple en priorité 'haute' (risque de spécialisation excessive).",
-    "Risque de 'Faux Positifs' NER : le modèle de détection de noms confond les verbes de début de phrase ('Pouvez') avec des PII."
+    "Risque de 'Faux Positifs' NER : le modèle peut confondre certains termes techniques (ex: 'MLOps') avec des noms de personnes.",
+    "Détection PII exhaustive : les IPs, téléphones, emails et URLs sont bien identifiés comme données sensibles, incluant les formats numériques imbriqués."
   ]
 }
