@@ -10,8 +10,9 @@ def drop_duplicates(df: pd.DataFrame) -> pd.DataFrame:
     logger.info("Suppression des doublons")
     initial_len = len(df)
     
-    # Doublons exacts
-    df = df.drop_duplicates()
+    # Doublons exacts (on évite les colonnes non-hashables comme les dicts)
+    hashable_cols = [col for col in df.columns if df[col].apply(lambda x: not isinstance(x, (dict, list))).all()]
+    df = df.drop_duplicates(subset=hashable_cols)
     
     # Quasi-doublons sur la colonne 'input'
     def normalize_for_hash(text):
