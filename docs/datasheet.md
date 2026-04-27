@@ -6,7 +6,7 @@
 
 ## 2. Composition
 * **Nombre d'instances :** ~500 exemples (v2 augmentée).
-* **Structure :** Chaque instance contient un `input` (texte utilisateur), une `categorie`, une `priorite`, une `reponse_suggeree`, un `canal` (web/email/chat), un `external_id`, des `canal_metadata` et un `dedup_status`.
+* **Structure :** Chaque instance contient un `input` (texte utilisateur), une `categorie`, une `priorite`, une `reponse_suggeree`, un `canal` (web/email/chat), un `external_id`, des `canal_metadata`, un `dedup_status` et des champs dérivés (`langue`, `sentiment`).
 * **Répartition des catégories :** Équilibrée (100 exemples par classe).
 
 ## 3. Sources et Collecte
@@ -18,5 +18,6 @@
 
 ## 4. Considérations Éthiques
 * **Biais identifiés :** Les "Informations générales" sont plus courtes en moyenne, ce qui peut induire un biais de prédiction basé sur la longueur.
+* **Biais linguistique :** Une priorisation systématique des langues étrangères (EN/ES) pourrait introduire une inégalité de traitement au détriment des clients francophones si les ressources ne sont pas proportionnées.
 * **Impact :** Le modèle pourrait sous-prioriser des demandes complexes si elles sont formulées de manière concise.
-* **Confidentialité :** Conforme RGPD par l'absence de données personnelles réelles.
+* **Confidentialité :** Conforme RGPD par l'absence de données personnelles réelles. Utilisation de bibliothèques locales pour l'enrichissement (langue/sentiment) afin de garantir la souveraineté des données.

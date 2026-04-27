@@ -80,3 +80,27 @@ python -m pytest tests/test_legacy_collect.py -v
 ## Documentation
 - [Plan d'Augmentation](docs/plan_augmentation.md)
 - [Note Réglementaire et Éthique](docs/risques_ethiques.md)
+- [Cadrage Enrichissement](docs/cadrage_besoin_metier.md)
+
+## Module 3 Brief 3 — Enrichissement Intelligent (PoC)
+
+Anticipation des besoins de détection de langue et d'analyse de sentiment.
+
+### Travaux réalisés
+- **Cadrage métier** : Définition des critères de succès et analyse des risques (AI Act).
+- **PoC Technique** : Implémentation de la détection de langue via `langdetect` dans `src/pipeline/enrich.py`.
+- **Analyse Empirique** : Notebook d'exploration pour valider la répartition linguistique du dataset.
+- **Eco-conception** : Évaluation de l'empreinte carbone et choix de solutions locales.
+
+### Utilisation du PoC
+```bash
+python -m src.pipeline.enrich --field language --input data/processed/dataset_v2.jsonl --output data/processed/dataset_v3_enriched.jsonl
+```
+
+## Roadmap Data (Post-Module 3)
+- [x] Ingestion multi-source (Email, Chat, Web)
+- [x] Déduplication cross-canal
+- [x] PoC Détection de langue
+- [ ] Généralisation de l'enrichissement (Sentiment, Langue) en production
+- [ ] Migration SQL automatique via Alembic
+- [ ] Ré-entraînement du modèle (Module 4) avec intégration des métadonnées d'enrichissement

@@ -13,7 +13,8 @@
     - Suppression des citations et signatures (regex).
 4.  **Déduplication Cross-Canal :** Marquage des doublons (colonne `dedup_status`) basés sur l'expéditeur et l'empreinte sémantique (fenêtre 48h).
 5.  **Anonymisation :** Masquage des PII via `src/pipeline/anonymize.py`.
-6.  **Stockage SQL :** Insertion dans MySQL avec idempotence sur `external_id`.
+6.  **Enrichissement :** Détection automatique de la langue et du sentiment (PoC Module 3).
+7.  **Stockage SQL :** Insertion dans MySQL avec idempotence sur `external_id`.
 
 ## 2. Points de rupture potentiels (Bottlenecks)
 * **Format des emails :** Les emails multipart complexes peuvent altérer la qualité du texte extrait.
