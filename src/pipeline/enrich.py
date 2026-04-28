@@ -23,6 +23,7 @@ def get_sentiment_analyzer():
 def enrich_language(df: pd.DataFrame, text_column: str = "input_text") -> pd.DataFrame:
     """
     Enrichit le DataFrame avec la langue détectée.
+    Utilise un cache basé sur le hash du texte pour éviter les calculs redondants.
     """
     logger.info(f"Déclenchement de la détection de langue sur la colonne '{text_column}'...")
 
@@ -30,13 +31,31 @@ def enrich_language(df: pd.DataFrame, text_column: str = "input_text") -> pd.Dat
     process = psutil.Process(os.getpid())
     start_mem = process.memory_info().rss / (1024 * 1024)
 
+    cache = {}
+    stats = {"hits": 0, "calls": 0}
+
     def _detect(text):
+        if pd.isna(text):
+            return "unknown"
+
+        text_str = str(text)
+        h = hash(text_str)
+
+        if h in cache:
+            stats["hits"] += 1
+            return cache[h]
+
+        stats["calls"] += 1
         try:
-            if pd.isna(text) or len(str(text).strip()) < 3:
-                return "unknown"
-            return detect(str(text))
+            if len(text_str.strip()) < 3:
+                res = "unknown"
+            else:
+                res = detect(text_str)
         except Exception:
-            return "error"
+            res = "error"
+
+        cache[h] = res
+        return res
 
     df["langue"] = df[text_column].apply(_detect)
 
@@ -47,6 +66,7 @@ def enrich_language(df: pd.DataFrame, text_column: str = "input_text") -> pd.Dat
     avg_time = (duration / len(df)) * 1000 if len(df) > 0 else 0
 
     logger.success(f"Détection terminée en {duration:.2f}s ({avg_time:.2f}ms/ligne)")
+    logger.info(f"Cache : {stats['hits']} hits, {stats['calls']} nouveaux calculs")
     logger.info(f"Consommation RAM : +{end_mem - start_mem:.2f} MB (Total: {end_mem:.2f} MB)")
 
     return df
@@ -54,6 +74,7 @@ def enrich_language(df: pd.DataFrame, text_column: str = "input_text") -> pd.Dat
 def enrich_sentiment(df: pd.DataFrame, text_column: str = "input_text") -> pd.DataFrame:
     """
     Enrichit le DataFrame avec le sentiment détecté.
+    Utilise un cache basé sur le hash du texte pour éviter les calculs redondants.
     """
     logger.info(f"Déclenchement de l'analyse de sentiment sur la colonne '{text_column}'...")
 
@@ -62,17 +83,34 @@ def enrich_sentiment(df: pd.DataFrame, text_column: str = "input_text") -> pd.Da
     start_mem = process.memory_info().rss / (1024 * 1024)
 
     analyzer = get_sentiment_analyzer()
+    cache = {}
+    stats = {"hits": 0, "calls": 0}
 
     def _analyze(text):
+        if pd.isna(text):
+            return "neutral"
+
+        text_str = str(text)
+        h = hash(text_str)
+
+        if h in cache:
+            stats["hits"] += 1
+            return cache[h]
+
+        stats["calls"] += 1
         try:
-            if pd.isna(text) or len(str(text).strip()) < 5:
-                return "neutral"
-            # On tronque à 512 tokens pour éviter les erreurs du modèle
-            res = analyzer(str(text)[:512])[0]
-            return res['label']
+            if len(text_str.strip()) < 5:
+                res = "neutral"
+            else:
+                # On tronque à 512 tokens pour éviter les erreurs du modèle
+                res_hf = analyzer(text_str[:512])[0]
+                res = res_hf['label']
         except Exception as e:
             logger.warning(f"Erreur sur une ligne : {e}")
-            return "error"
+            res = "error"
+
+        cache[h] = res
+        return res
 
     df["sentiment"] = df[text_column].apply(_analyze)
 
@@ -83,6 +121,7 @@ def enrich_sentiment(df: pd.DataFrame, text_column: str = "input_text") -> pd.Da
     avg_time = (duration / len(df)) * 1000 if len(df) > 0 else 0
 
     logger.success(f"Analyse terminée en {duration:.2f}s ({avg_time:.2f}ms/ligne)")
+    logger.info(f"Cache : {stats['hits']} hits, {stats['calls']} nouveaux calculs")
     logger.info(f"Consommation RAM : +{end_mem - start_mem:.2f} MB (Total: {end_mem:.2f} MB)")
 
     return df
